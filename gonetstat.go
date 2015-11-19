@@ -20,7 +20,10 @@ import (
 )
 
 const (
-	PROC_TCP = "/proc/net/tcp"
+	PROC_TCP  = "/proc/net/tcp"
+	PROC_UDP  = "/proc/net/udp"
+	PROC_TCP6 = "/proc/net/tcp6"
+	PROC_UDP6 = "/proc/net/udp6"
 )
 
 var STATE = map[string]string{
@@ -38,15 +41,11 @@ var STATE = map[string]string{
 }
 
 type Process struct {
-	User        string
-	Name        string
-	Pid         string
-	Exe         string
-	State       string
-	Ip          string
-	Port        int
-	ForeignIp   string
-	ForeignPort int
+	User  string
+	Name  string
+	State string
+	Ip    string
+	Port  int64
 }
 
 func getData(t string) []string {
@@ -56,6 +55,12 @@ func getData(t string) []string {
 
 	if t == "tcp" {
 		proc_t = PROC_TCP
+	} else if t == "udp" {
+		proc_t = PROC_UDP
+	} else if t == "tcp6" {
+		proc_t = PROC_TCP6
+	} else if t == "udp6" {
+		proc_t = PROC_UDP6
 	} else {
 		fmt.Printf("%s is a invalid type, tcp and udp only!\n", t)
 		os.Exit(1)
@@ -73,9 +78,9 @@ func getData(t string) []string {
 
 }
 
-func hexToDec(h string) int {
+func hexToDec(h string) int64 {
 	// convert hexadecimal to decimal.
-	d, err := strconv.Atoi(h)
+	d, err := strconv.ParseInt(h, 16, 32)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -115,7 +120,7 @@ func convertIp(ip string) string {
 			i[2], i[3], i[0], i[1])
 
 	} else {
-		i := []int{hexToDec(ip[6:8]),
+		i := []int64{hexToDec(ip[6:8]),
 			hexToDec(ip[4:6]),
 			hexToDec(ip[2:4]),
 			hexToDec(ip[0:2])}
@@ -188,22 +193,22 @@ func netstat(t string) []Process {
 
 		// local ip and port
 		line_array := removeEmpty(strings.Split(strings.TrimSpace(line), " "))
-		ip_port := strings.Split(line_array[1], ":")
+		//ip_port := strings.Split(line_array[1], ":")
 		ip := convertIp(ip_port[0])
 		port := hexToDec(ip_port[1])
 
 		// foreign ip and port
-		fip_port := strings.Split(line_array[2], ":")
-		fip := convertIp(fip_port[0])
-		fport := hexToDec(fip_port[1])
+		//fip_port := strings.Split(line_array[2], ":")
+		//fip := convertIp(fip_port[0])
+		//fport := hexToDec(fip_port[1])
 
 		state := STATE[line_array[3]]
 		uid := getUser(line_array[7])
-		pid := findPid(line_array[9])
-		exe := getProcessExe(pid)
+		//pid := findPid(line_array[9])
+		//exe := getProcessExe(pid)
 		name := getProcessName(exe)
 
-		p := Process{uid, name, pid, exe, state, ip, port, fip, fport}
+		p := Process{uid, name, state, ip, port}
 
 		Processes = append(Processes, p)
 
@@ -215,5 +220,23 @@ func netstat(t string) []Process {
 func Tcp() []Process {
 	// Get a slice of Process type with TCP data
 	data := netstat("tcp")
+	return data
+}
+
+func Udp() []Process {
+	// Get a slice of Process type with UDP data
+	data := netstat("udp")
+	return data
+}
+
+func Tcp6() []Process {
+	// Get a slice of Process type with TCP6 data
+	data := netstat("tcp6")
+	return data
+}
+
+func Udp6() []Process {
+	// Get a slice of Process type with UDP6 data
+	data := netstat("udp6")
 	return data
 }
