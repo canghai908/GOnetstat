@@ -193,7 +193,7 @@ func netstat(t string) []Process {
 
 		// local ip and port
 		line_array := removeEmpty(strings.Split(strings.TrimSpace(line), " "))
-		//ip_port := strings.Split(line_array[1], ":")
+		ip_port := strings.Split(line_array[1], ":")
 		ip := convertIp(ip_port[0])
 		port := hexToDec(ip_port[1])
 
@@ -204,8 +204,8 @@ func netstat(t string) []Process {
 
 		state := STATE[line_array[3]]
 		uid := getUser(line_array[7])
-		//pid := findPid(line_array[9])
-		//exe := getProcessExe(pid)
+		pid := findPid(line_array[9])
+		exe := getProcessExe(pid)
 		name := getProcessName(exe)
 
 		p := Process{uid, name, state, ip, port}
