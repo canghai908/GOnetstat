@@ -44,9 +44,9 @@ type Process struct {
 	Exe         string
 	State       string
 	Ip          string
-	Port        int64
+	Port        int
 	ForeignIp   string
-	ForeignPort int64
+	ForeignPort int
 }
 
 func getData(t string) []string {
