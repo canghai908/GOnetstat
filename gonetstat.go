@@ -73,9 +73,9 @@ func getData(t string) []string {
 
 }
 
-func hexToDec(h string) int64 {
+func hexToDec(h string) int {
 	// convert hexadecimal to decimal.
-	d, err := strconv.ParseInt(h, 16, 32)
+	d, err := strconv.Atoi(h)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -115,7 +115,7 @@ func convertIp(ip string) string {
 			i[2], i[3], i[0], i[1])
 
 	} else {
-		i := []int64{hexToDec(ip[6:8]),
+		i := []int{hexToDec(ip[6:8]),
 			hexToDec(ip[4:6]),
 			hexToDec(ip[2:4]),
 			hexToDec(ip[0:2])}
